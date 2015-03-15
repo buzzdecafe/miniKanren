@@ -57,6 +57,8 @@
                 (choice z empty-f))))
           empty-c))))))
 
+; run* returns an empty list on failure, a non-empty list on success.
+; `g` etc. are _goals_ that may succeed or fail
 (define-syntax run*
   (syntax-rules ()
     ((_ (x) g ...) (run #f (x) g ...))))
@@ -72,6 +74,10 @@
          ((c) (cons c '()))
          ((c f) (cons c (take (and n (- n 1)) f))))))))
 
+; binds fresh variables into its scope and succeeds if goals `g ...` succeed
+;
+; Law of Fresh:
+; If `x` is fresh, then `(== v x)` succeeds and associates `x` with `v`
 (define-syntax fresh
   (syntax-rules ()
     ((_ (x ...) g0 g ...)
@@ -234,6 +240,10 @@
                    (((pr->pred pr) u) #f)
                    (else #t)))))))))))
 
+; unify u with v
+;
+; Law of `==`
+; `(== v w)` is the same as `(== w v)`
 (define == 
   (lambda (u v)
     (lambdag@ (c : S D A T)
@@ -502,8 +512,10 @@
 
 (define rhs (lambda (pr) (cdr pr)))
 
+; a goal that succeeds; aka #s
 (define succeed (== #f #f))
 
+; a goal that fails; aka #u
 (define fail (== #f #t))
 
 (define walk
